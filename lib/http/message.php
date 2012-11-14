@@ -117,7 +117,7 @@ abstract class Message extends Object implements \ArrayAccess, \Iterator {
    * @param string $charset with utf8 as default
    * @return string
    */
-  function content_type($mime = null, $charset = 'utf8') {
+  function content_type($mime = null, $charset = 'utf-8') {
     if(isset($mime)) return $this->write_field('content_type', "$mime; charset=$charset");
     return $this->field('content_type');
   }
