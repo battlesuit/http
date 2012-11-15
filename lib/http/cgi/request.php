@@ -13,14 +13,9 @@ namespace http\cgi;
  */
 class Request extends \http\Request {
   public $env;
-  private $path_info;
   
   final function __construct(Env $env) {
     $this->initialize($env);
-  }
-  
-  function path_info() {
-    return $this->path_info;
   }
 
   /**
@@ -35,8 +30,8 @@ class Request extends \http\Request {
     if($sapi === 'cli') {
       $path = null;
     } else {
-      $this->path_info = isset($env['PATH_INFO']) ? $env['PATH_INFO'] : null;
-      $path = $env['SCRIPT_NAME'];
+      $path_info = isset($env['PATH_INFO']) ? $env['PATH_INFO'] : null;
+      $path = $env['SCRIPT_NAME'].$path_info;
     }
     
     $scheme = (isset($env['HTTPS']) and $env['HTTPS'] == 'on') ? 'https' : 'http';
