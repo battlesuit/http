@@ -151,10 +151,10 @@ class Request extends Message {
     extract($components);
 
     # find url file if there is any
-    if(!empty($path) and ($dot_pos = strrpos($path, '.')) !== false) {
+    if(!empty($path) and ($dot_pos = strrpos($path, '.php')) !== false) {
       $after_dot = substr($path, $dot_pos+1);
       
-      if(preg_match('/^(php)/', $after_dot) === 1) {
+      //if(preg_match('/^(php)/', $after_dot) === 1) {
         # script file detected
         
         if(($path_info = strstr($after_dot, '/')) !== false) {
@@ -164,7 +164,7 @@ class Request extends Message {
         
         $components['file'] = basename($path);
         $this->path = dirname($path);
-      } else $this->path = $path;
+      //} else $this->path = $path;
       
      
     } elseif(!empty($path)) $this->path = $path;
