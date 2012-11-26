@@ -1,4 +1,4 @@
-sc.http
+bs.http
 =======
 
 HTTP Bundle for PHP 5.3+
