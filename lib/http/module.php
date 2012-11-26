@@ -7,8 +7,8 @@ namespace http;
  * PHP Version 5.4+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
  * @version $Revision$
- * @package Suitcase
- * @subpackage Net
+ * @package Battlesuit
+ * @subpackage http
  */
 class Module extends Object {
   

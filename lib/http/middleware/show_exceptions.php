@@ -10,8 +10,8 @@ use http\Transaction;
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
  * @version $Revision$
- * @package Suitcase
- * @subpackage Net
+ * @package Battlesuit
+ * @subpackage http
  */
 class ShowExceptions extends Transaction {
   function process(Request $request) {
