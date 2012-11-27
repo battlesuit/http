@@ -134,6 +134,14 @@ class RequestTest extends MessageTester {
     ));
   }
   
+  function test_resource_path() {
+    $request = new Request('get', 'http://domain.de:80/hello/world');
+    $this->assert_eq($request->resource_path(), '/hello/world');
+    
+    $request = new Request('get', 'http://domain.de:80/hello/world/index.php/foo/bar');
+    $this->assert_eq($request->resource_path(), '/foo/bar');
+  }
+  
   function test_content_length_default() {
     $request = new Request('post', 'http://domain.de:80/hello/world/call.php/path/info?id=12&name=mel', array('foo' => 'bar'));
     $this->assert_equality($request['content_length'], 22);

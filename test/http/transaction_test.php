@@ -4,7 +4,7 @@ namespace http;
 class TransactionTest extends TestCase {
     
   function assert_flat_body_eq($processor, $request, $value) {
-    $this->assert_eq(Transaction::handle($processor, $request)->flat_body(), $value);
+    $this->assert_eq(Transaction::run($processor, $request)->response()->flat_body(), $value);
   }
   
   function set_up() {
@@ -39,7 +39,7 @@ class TransactionTest extends TestCase {
   }
   
   function test_static_handle() {
-    $response = Transaction::handle($this->not_found_responder, new Request());
+    $response = Transaction::run($this->not_found_responder, new Request())->response();
     $this->assert_instanceof($response, 'http\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
@@ -49,7 +49,7 @@ class TransactionTest extends TestCase {
       return new Response(404);
     };
     
-    $response = Transaction::handle($processor, new Request());
+    $response = Transaction::run($processor, new Request())->response();
     $this->assert_eq($response->status, 404);
   }
   
@@ -66,7 +66,7 @@ class TransactionTest extends TestCase {
       return new Response(200, 'can you believe <b>that</b>', array('content_type' => 'text/html'));
     };
     
-    $response = Transaction::handle($processor, new Request());
+    $response = Transaction::run($processor, new Request())->response();
     $this->assert_eq($response->status, 200);
     $this->assert_eq($response->flat_body(), 'can you believe <b>that</b>');
     $this->assert_eq($response['content_type'], 'text/html');
@@ -77,7 +77,7 @@ class TransactionTest extends TestCase {
       return array(404, array('content_type' => 'text/html'), array('Not found'));
     };
     
-    $response = Transaction::handle($processor, new Request());
+    $response = Transaction::run($processor, new Request())->response();
     $this->assert_eq($response->status, 404);
     $this->assert_eq($response->flat_body(), 'Not found');
     $this->assert_eq($response['content_type'], 'text/html');

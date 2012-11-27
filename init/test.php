@@ -9,7 +9,7 @@
  * @subpackage http
  */
 namespace bs {
-  require '../../module.php';
+  require __DIR__.'/../../module.php';
   import('test', 'http');
 }
 ?>

@@ -1,9 +1,7 @@
 <?php
-namespace http\cgi;
-use http\Object;
-use http\Session;
+namespace http;
 
-class Env extends Object implements \ArrayAccess, \Iterator {
+class Env implements \ArrayAccess, \Iterator {
   
   /**
    * Attribute defaults
@@ -33,33 +31,59 @@ class Env extends Object implements \ArrayAccess, \Iterator {
   );
   
   protected $attributes = array();
-  static $fix_pathinfo = false;
+  public $request = array();
   
-  static function load() {
-    $env = new static();
-    $server = $_SERVER;
+  function __construct(array $server = array(), array $cookie = array(), array $session = array()) {
+    $this->server($server);
+    $this->cookie($cookie);
+    $this->session($session);
+    $this->parse();
+  }
+  
+  function server(array $server) {    
+    $this->attributes = array_merge($this->attributes, static::$defaults, $server);
+  }
+  
+  function cookie(array $cookie) {
+    $this->attributes['cookies'] = $cookie;
+  }
+  
+  function session(array $session) {
+    $this->attributes['session'] = $session;
+  }
+  
+  protected function parse() {
+    $sapi = php_sapi_name();
     
-    if(static::$fix_pathinfo) {
-      if(($pos = strpos($server['QUERY_STRING'], '&'))) {
-        $server['PATH_INFO'] = substr($server['QUERY_STRING'], 0, $pos);
-      } else $server['PATH_INFO'] = $server['QUERY_STRING'];
-      
-      if(($pos = strpos($server['REQUEST_URI'], '?'))) {
-        $server['QUERY_STRING'] = substr($server['REQUEST_URI'], $pos+1);
-      } else $server['QUERY_STRING'] = ""; 
+    if($sapi === 'cli') {
+      $path = null;
+    } else {
+      $path_info = isset($this['PATH_INFO']) ? $this['PATH_INFO'] : null;
+      $path = $this['SCRIPT_NAME'].$path_info;
     }
     
-    if(empty($server['PATH_INFO'])) {
-      $server['PATH_INFO'] = '/';
+    $scheme = (isset($this['HTTPS']) and $this['HTTPS'] == 'on') ? 'https' : 'http';
+    $host = $this['HTTP_HOST'];
+    $port = $this['SERVER_PORT'];
+    
+    $query_string = !empty($this['QUERY_STRING']) ? $this['QUERY_STRING'] : null;
+    
+    if(!empty($query_string)) {
+      $path = "$path?$query_string";
     }
     
-    $env->attributes = $server + array(
-      'http.errors' => @file_get_contents('php://stderr'),
-      //'session' => Session::start(),
-      'cookies' => $_COOKIE
-    ) + static::$defaults;
+    $header = array();
+    foreach($this as $name => $value) {
+      if(strpos($name, 'HTTP_') === 0) $header[strtolower(substr($name, 5))] = $value;
+    }
     
-    return $env;
+    $input = array();
+    $http_input = @file_get_contents('php://input');
+    if(isset($http_input)) {
+      parse_str($http_input, $input);
+    }
+
+    $this->request = array($this['REQUEST_METHOD'], "$scheme://$host:$port$path", $input, $header);
   }
 
   /**
@@ -80,6 +104,16 @@ class Env extends Object implements \ArrayAccess, \Iterator {
    */
   function server_port() {
     return (int)$this['SERVER_PORT'];
+  }
+  
+  /**
+   * Returns the attributes array
+   *
+   * @access public
+   * @return array
+   */
+  function to_array() {
+    return $this->attributes;
   }
  
   /**

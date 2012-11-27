@@ -111,20 +111,29 @@ class Request extends Message {
    */
   public $query = array();
   
+  public $env;
+  
   /**
    * Constructs a new request instance
    * If the data array or the query contains the _method param the method gets
-   * overridden. Also default headerfields are set:
-   * content_length = query-length
-   * accept = *\/*
+   * overridden.
+   * As first ctor argument it is possible to pass a Env instance
+   *
+   * Default headerfields:
+   *  content_length = query-length
+   *  accept = *\/*
    * 
    * @access public
-   * @param string $method
+   * @param mixed $method_or_env
    * @param string $url
    * @param array $input
    * @param array $fields Headerfields
    */
-  function __construct($method = null, $url = null, array $input = array(), array $fields = array()) {  
+  function __construct($method_or_env = null, $url = null, array $input = array(), array $fields = array()) {
+    if(is_string($method_or_env)) {
+      $method = $method_or_env;
+    } elseif($method_or_env instanceof Env) $this->env($method_or_env);
+    
     if(!empty($url)) $this->url = $url;
     $this->data = $input;
     $this->prepare_url_components();
@@ -141,6 +150,16 @@ class Request extends Message {
     $this->fields($fields);
   }
   
+  function env(Env $env = null) {
+    if(isset($env)) {
+      list($method, $url, $input, $fields) = $env->request;
+      $this->__construct($method, $url, $input, $fields);
+      $this->env = $env;
+    }
+    
+    return $this->env;
+  }
+  
   /**
    * Maps all url components extracted by parse_url() to this request
    *
@@ -154,19 +173,16 @@ class Request extends Message {
     if(!empty($path) and ($dot_pos = strrpos($path, '.php')) !== false) {
       $after_dot = substr($path, $dot_pos+1);
       
-      //if(preg_match('/^(php)/', $after_dot) === 1) {
-        # script file detected
+      if(($path_info = strstr($after_dot, '/')) !== false) {
+        $components['path_info'] = $path_info;
+        $path = substr($path, 0, strrpos($path, $path_info));
         
-        if(($path_info = strstr($after_dot, '/')) !== false) {
-          $components['path_info'] = $path_info;
-          $path = substr($path, 0, strrpos($path, $path_info));
-        }
-        
-        $components['file'] = basename($path);
-        $this->path = dirname($path);
-      //} else $this->path = $path;
+      }
       
+      $components['file'] = basename($path);
      
+      $this->path = str_replace(DIRECTORY_SEPARATOR, '/', dirname($path));
+
     } elseif(!empty($path)) $this->path = $path;
     
     # merge query with data array
@@ -402,6 +418,16 @@ class Request extends Message {
    */  
   function via_head() {
     return $this->via('head');
+  }
+  
+  /**
+   * Is this request a xml-http
+   *
+   * @access public
+   * @return boolean
+   */
+  function xhr() {
+    return isset($this['HTTP_X_REQUESTED_WITH']) and $this['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
   }
   
   /**

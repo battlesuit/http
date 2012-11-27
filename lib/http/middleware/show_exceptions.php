@@ -18,7 +18,6 @@ class ShowExceptions extends Transaction {
     try {
       $response = call_user_func($this->processor, $request);
     } catch(\Exception $exception) {
-      
       return new Response(500, "<pre>$exception</pre>", array('content_type' => 'text/html'));
     }
     
