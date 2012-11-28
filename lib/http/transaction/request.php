@@ -1,5 +1,5 @@
 <?php
-namespace http;
+namespace http\transaction;
 
 /**
  * Standard http request message with some required helpers
@@ -111,7 +111,14 @@ class Request extends Message {
    */
   public $query = array();
   
-  public $env;
+  /**
+   * Contains the transaction environment if there is any
+   * http\Env acts like an array and if its not given $env stays a normal array 
+   *
+   * @access public
+   * @var Env or array
+   */
+  public $env = array();
   
   /**
    * Constructs a new request instance
@@ -132,7 +139,7 @@ class Request extends Message {
   function __construct($method_or_env = null, $url = null, array $input = array(), array $fields = array()) {
     if(is_string($method_or_env)) {
       $method = $method_or_env;
-    } elseif($method_or_env instanceof Env) $this->env($method_or_env);
+    } elseif($method_or_env instanceof Env) $this->apply_env($method_or_env);
     
     if(!empty($url)) $this->url = $url;
     $this->data = $input;
@@ -150,14 +157,16 @@ class Request extends Message {
     $this->fields($fields);
   }
   
-  function env(Env $env = null) {
-    if(isset($env)) {
-      list($method, $url, $input, $fields) = $env->request;
-      $this->__construct($method, $url, $input, $fields);
-      $this->env = $env;
-    }
-    
-    return $this->env;
+  /**
+   * Applies a environment
+   *
+   * @access public
+   * @param Env $env
+   */
+  function apply_env(Env $env) {
+    list($method, $url, $input, $fields) = $env->request;
+    $this->__construct($method, $url, $input, $fields);
+    $this->env = $env;
   }
   
   /**
@@ -436,7 +445,7 @@ class Request extends Message {
    * @access public
    * @return string
    */ 
-  function to_string() {
+  function __toString() {
     return strtoupper($this->method())." $this->url";
   }
   

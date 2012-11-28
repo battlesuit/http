@@ -1,5 +1,5 @@
 <?php
-namespace http;
+namespace http\transaction;
 
 /**
  * Common abstraction of an http message e.g. Request or Response
@@ -12,7 +12,7 @@ namespace http;
  * @package Battlesuit
  * @subpackage http
  */
-abstract class Message extends Object implements \ArrayAccess, \Iterator {
+abstract class Message implements \ArrayAccess, \Iterator {
   
   /**
    * Format/Mime mapping definitions

@@ -1,6 +1,23 @@
 <?php
 namespace http;
 
+/**
+ * HTTP Environment
+ * Includes data of global arrays $_SERVER, $_COOKIE
+ *
+ * For manual extension use the initor as follows:
+ *
+ *  Env::init(function($env) {
+ *    # include session
+ *    $env['session'] = Session::start();
+ *  });
+ *
+ * PHP Version 5.3+
+ * @author Thomas Monzel <tm@apparat-hamburg.de>
+ * @version $Revision$
+ * @package Battlesuit
+ * @subpackage http
+ */
 class Env implements \ArrayAccess, \Iterator {
   
   /**
@@ -30,26 +47,66 @@ class Env implements \ArrayAccess, \Iterator {
     'HTTP_CACHE_CONTROL' => 'max-age=0'
   );
   
-  protected $attributes = array();
+  /**
+   * Initialization callback
+   *
+   * @static
+   * @access private
+   * @var callable
+   */
+  private static $init;
+  
+  /**
+   * Variables container
+   *
+   * @access protected
+   * @var array
+   */
+  protected $variables = array();
+  
+  /**
+   * Parsed request info
+   * [0] => method
+   * [1] => url
+   * [2] => input_data
+   * [3] => headerfields
+   *
+   * @access public
+   * @var array
+   */
   public $request = array();
   
-  function __construct(array $server = array(), array $cookie = array(), array $session = array()) {
-    $this->server($server);
-    $this->cookie($cookie);
-    $this->session($session);
-    $this->parse();
+  /**
+   * Constructs a new Env instance
+   *
+   * @access public
+   * @param array $variables
+   */
+  function __construct(array $variables = null) {
+    $this->variables($variables);
   }
   
-  function server(array $server) {    
-    $this->attributes = array_merge($this->attributes, static::$defaults, $server);
+  function variables(array $variables = null) {
+    if(isset($variables)) {
+      $this->variables = array_merge($this->variables, static::$defaults, $variables);
+      $this->parse();
+    }
+    
+    return $this->variables;
   }
   
-  function cookie(array $cookie) {
-    $this->attributes['cookies'] = $cookie;
+  static function dump() {
+    $variables = $_SERVER + array(
+      'cookies' => new Cookies($_COOKIE)
+    );
+    
+    $instance = new static($variables);
+    if(is_callable(self::$init)) call_user_func(self::$init, $instance);
+    return $instance;
   }
   
-  function session(array $session) {
-    $this->attributes['session'] = $session;
+  static function init($callback) {
+    self::$init = $callback;
   }
   
   protected function parse() {
@@ -113,7 +170,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return array
    */
   function to_array() {
-    return $this->attributes;
+    return $this->variables;
   }
  
   /**
@@ -123,7 +180,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @access public
    */
   function rewind() {
-    reset($this->attributes);
+    reset($this->variables);
   }
 
   /**
@@ -134,7 +191,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return string
    */
   function current() {
-    return current($this->attributes);
+    return current($this->variables);
   }
 
   /**
@@ -145,7 +202,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return string
    */
   function key() {
-    return key($this->attributes);
+    return key($this->variables);
   }
 
   /**
@@ -156,7 +213,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @access public
    */
   function next() {
-    next($this->attributes);
+    next($this->variables);
   }
 
   /**
@@ -169,18 +226,18 @@ class Env implements \ArrayAccess, \Iterator {
    * @return boolean
    */
   function valid() {
-    return key($this->attributes) !== null;
+    return key($this->variables) !== null;
   }
   
   /**
    * ArrayAccess::offsetSet() implementation
    *
    * @access public
-   * @param string $field_name
+   * @param string $name
    * @param mixed $value
    */
   function offsetSet($name, $value) {
-    $this->attributes[$name] = $value;
+    $this->variables[$name] = $value;
   }
 
   /**
@@ -190,7 +247,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @param string $name
    */
   function offsetUnset($name) {
-    unset($this->attributes[$name]);
+    unset($this->variables[$name]);
   }
 
   /**
@@ -201,7 +258,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return string
    */
   function offsetGet($name) {
-    return $this->attributes[$name];
+    return $this->variables[$name];
   }
 
   /**
@@ -212,7 +269,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return boolean
    */
   function offsetExists($name) {
-    return array_key_exists($name, $this->attributes);
+    return array_key_exists($name, $this->variables);
   }
 }
 ?>

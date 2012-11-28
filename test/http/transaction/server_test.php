@@ -1,10 +1,12 @@
 <?php
-namespace http;
+namespace http\transaction;
 
-class TransactionTest extends TestCase {
+class ServerTest extends \http\TestCase {
     
   function assert_flat_body_eq($processor, $request, $value) {
-    $this->assert_eq(Transaction::run($processor, $request)->response()->flat_body(), $value);
+    $t = new Server($processor);
+    $t->process($request);
+    $this->assert_eq($t->response()->flat_body(), $value);
   }
   
   function set_up() {
@@ -20,27 +22,30 @@ class TransactionTest extends TestCase {
   }
   
   function test_process() {
-    $transaction = new Transaction($this->not_found_responder);
+    $transaction = new Server($this->not_found_responder);
     $response = $transaction->process(new Request());
-    $this->assert_instanceof($response, 'http\Response');
+    $this->assert_instanceof($response, 'http\transaction\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   
   function test_procssor_arguments() {
-    $transaction = new Transaction($this->assert_arguments_responder);
+    $transaction = new Server($this->assert_arguments_responder);
     $transaction->process(new Request());
   }
   
   function test_invocation() {
-    $transaction = new Transaction($this->not_found_responder);
+    $transaction = new Server($this->not_found_responder);
     $response = $transaction(new Request(), array());
-    $this->assert_instanceof($response, 'http\Response');
+    $this->assert_instanceof($response, 'http\transaction\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   
   function test_static_handle() {
-    $response = Transaction::run($this->not_found_responder, new Request())->response();
-    $this->assert_instanceof($response, 'http\Response');
+    $t = new Server($this->not_found_responder);
+    $t->process(new Request());
+    $response = $t->response();
+    
+    $this->assert_instanceof($response, 'http\transaction\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   
@@ -49,8 +54,9 @@ class TransactionTest extends TestCase {
       return new Response(404);
     };
     
-    $response = Transaction::run($processor, new Request())->response();
-    $this->assert_eq($response->status, 404);
+    $t = new Server($processor);
+    $t->process(new Request());
+    $this->assert_eq($t->response()->status, 404);
   }
   
   function test_processor_echo() {
@@ -66,7 +72,9 @@ class TransactionTest extends TestCase {
       return new Response(200, 'can you believe <b>that</b>', array('content_type' => 'text/html'));
     };
     
-    $response = Transaction::run($processor, new Request())->response();
+    $t = new Server($processor);
+    $t->process(new Request());
+    $response = $t->response();
     $this->assert_eq($response->status, 200);
     $this->assert_eq($response->flat_body(), 'can you believe <b>that</b>');
     $this->assert_eq($response['content_type'], 'text/html');
@@ -77,7 +85,9 @@ class TransactionTest extends TestCase {
       return array(404, array('content_type' => 'text/html'), array('Not found'));
     };
     
-    $response = Transaction::run($processor, new Request())->response();
+    $t = new Server($processor);
+    $t->process(new Request());
+    $response = $t->response();
     $this->assert_eq($response->status, 404);
     $this->assert_eq($response->flat_body(), 'Not found');
     $this->assert_eq($response['content_type'], 'text/html');

@@ -1,5 +1,5 @@
 <?php
-namespace http;
+namespace http\transaction;
 
 /**
  * Standard http response message with some required helpers
@@ -156,7 +156,7 @@ class Response extends Message {
    * @access public
    * @return string
    */
-  function to_string() {
+  function __toString() {
     return $this->flat_body();
   }
 }

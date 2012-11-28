@@ -1,8 +1,8 @@
 <?php
-namespace http;
+namespace http\transaction;
 
 /**
- * Default transaction handler
+ * Server transaction
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
@@ -10,97 +10,61 @@ namespace http;
  * @package Battlesuit
  * @subpackage http
  */
-class Transaction {
+class Server extends Base {
   
   /**
    * Middleware to include
    *
-   * @static
-   * @access public
+   * @access protected
    * @var array
    */
   protected $middleware = array(
-    'http\middleware\ShowExceptions'
+    'http\transaction\middleware\ShowExceptions'
   );
   
   /**
-   * Process callback
+   * Initialization callback
    *
-   * @access protected
+   * @static
+   * @access private
    * @var callable
    */
-  protected $processor;
+  private static $init;
   
   /**
-   * Processed response
-   *
-   * @access protected
-   * @var Response
-   */
-  protected $response;
-  
-  /**
-   * Constructs a new transaction instance
-   *
-   * @access public
-   * @param callable $processor
-   */
-  function __construct($processor) {
-    $this->processor = $processor;
-  }
-  
-  /**
-   * Invocation processes a transaction
-   *
-   * @access public
-   * @param Request $request
-   * @return Response $response
-   */  
-  function __invoke(Request $request) {
-    return $this->process($request);
-  }
-  
-  /**
-   * Reads the transaction processor
-   *
-   * @access public
-   * @return callable
-   */
-  function processor() {
-    return $this->processor;
-  }
-  
-  /**
-   * Returns the response set by process()
-   *
-   * @access public
-   * @return Response
-   */
-  function response() {
-    return $this->response;
-  }
-  
-  /**
-   * Runs a full process statically
+   * Creates, processes and returns a transaction instance
    *
    * @static
    * @access public
    * @param callable $processor
    * @param Request $request
-   * @return Response
+   * @return Local
    */
   static function run($processor, Request $request) {
     $transaction = new static($processor);
+    if(is_callable(self::$init)) call_user_func(self::$init, $transaction);
     $transaction->process($request);
     return $transaction;
   }
   
   /**
-   * Process transaction
+   * Defines a initalization callback which takes the transaction instance
+   * after creation by static::run()
+   *
+   * @static
+   * @access public
+   * @param callable $initalization_callback
+   */
+  static function init($initalization_callback) {
+    self::$init = $initalization_callback;
+  }
+  
+  /**
+   * Processes the transaction
    *
    * @access public
    * @param Request $request
-   * @return Response $response
+   * @return Response
    */   
   function process(Request $request) {
     $application = $this->processor;
@@ -127,25 +91,37 @@ class Transaction {
       $response = new Response(200, $returned_response);
     }
     
+    # if no response defined force a default one
     if(!isset($response)) $response = new Response();
-    
     return $this->response = $response;
+  }
+  
+  /**
+   * Integrates a new middleware class
+   * Every class instance must be invocable. Normally you have to extend transaction\Base
+   *
+   * @access public
+   * @param string $class
+   */
+  function integrate($class) {
+    $this->middleware[] = $class;
   }
   
   /**
    * Prepares transaction middleware for execution
    * 
-   * @static
    * @access public
    * @return array
    */
   function prepare_middleware() {
     $middleware = array();
+    
     foreach($this->middleware as $class) {
       $middleware[] = function($application) use($class) {
         return new $class($application);
       };
     }
+    
     return array_reverse($middleware);
   }
   

@@ -2,7 +2,7 @@
 namespace http;
 
 /**
- * Session helper
+ * Cookies collection helper
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
@@ -10,33 +10,33 @@ namespace http;
  * @package Battlesuit
  * @subpackage http
  */
-class Session implements \ArrayAccess, \Iterator {
+class Cookies implements \ArrayAccess, \Iterator {
   
   /**
-   * Session attributes
+   * Cookie variable collection
    *
    * @access private
    * @var array
    */
-  private $attributes = array();
+  private $collection = array();
   
   /**
-   * Constructs a new session instance
+   * Constructs a new cookies instance
    *
    * @access public
-   * @param array $attributes
+   * @param array $collection
    */
-  function __construct(array $attributes = array()) {
-    $this->attributes = $attributes;
+  function __construct(array $collection = array()) {
+    $this->collection = $collection;
   }
   
   /**
-   * Merges all attributes on destruction or script end 
+   * Merges collection on destruction or script end 
    *
    * @access public
    */
   function __destruct() {
-    if(session_id() !== "") static::merge($this->attributes);
+    if(!empty($this->collection)) static::merge($this->collection);
   }
   
   /**
@@ -44,24 +44,10 @@ class Session implements \ArrayAccess, \Iterator {
    *
    * @static
    * @access public
-   * @param array $attributes
+   * @param array $collection
    */
-  static function merge(array $attributes) {
-    $_SESSION = array_merge($_SESSION, $attributes);
-  }
-  
-  /**
-   * Starts a new session
-   * Instanciates and returns a session instance
-   *
-   * @static
-   * @access public
-   * @return Session
-   */
-  static function start() {
-    session_start();
-    $session = new static($_SESSION);
-    return $session;
+  static function merge(array $collection) {
+    $_COOKIE = array_merge($_COOKIE, $collection);
   }
   
   /**
@@ -71,7 +57,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @access public
    */
   function rewind() {
-    reset($this->attributes);
+    reset($this->collection);
   }
 
   /**
@@ -82,7 +68,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @return string
    */
   function current() {
-    return current($this->attributes);
+    return current($this->collection);
   }
 
   /**
@@ -93,7 +79,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @return string
    */
   function key() {
-    return key($this->attributes);
+    return key($this->collection);
   }
 
   /**
@@ -104,7 +90,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @access public
    */
   function next() {
-    next($this->attributes);
+    next($this->collection);
   }
 
   /**
@@ -117,18 +103,18 @@ class Session implements \ArrayAccess, \Iterator {
    * @return boolean
    */
   function valid() {
-    return key($this->attributes) !== null;
+    return key($this->collection) !== null;
   }
   
   /**
    * ArrayAccess::offsetSet() implementation
    *
    * @access public
-   * @param string $field_name
+   * @param string $name
    * @param mixed $value
    */
   function offsetSet($name, $value) {
-    $this->attributes[$name] = $value;
+    $this->collection[$name] = $value;
   }
 
   /**
@@ -138,7 +124,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @param string $name
    */
   function offsetUnset($name) {
-    unset($this->attributes[$name]);
+    unset($this->collection[$name]);
   }
 
   /**
@@ -149,7 +135,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @return string
    */
   function offsetGet($name) {
-    return $this->attributes[$name];
+    return $this->collection[$name];
   }
 
   /**
@@ -160,7 +146,7 @@ class Session implements \ArrayAccess, \Iterator {
    * @return boolean
    */
   function offsetExists($name) {
-    return array_key_exists($name, $this->attributes);
+    return array_key_exists($name, $this->collection);
   }
 }
 ?>

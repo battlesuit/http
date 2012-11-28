@@ -15,5 +15,6 @@ namespace bs {
   
   # import helper functions
   require_once dirname(__DIR__).'/lib/http/functions.php';
+  require_once dirname(__DIR__).'/lib/http/transaction/functions.php';
 }
 ?>

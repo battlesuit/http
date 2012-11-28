@@ -1,8 +1,8 @@
 <?php
-namespace http\middleware;
-use http\Request;
-use http\Response;
-use http\Transaction;
+namespace http\transaction\middleware;
+use http\transaction\Request;
+use http\transaction\Response;
+use http\transaction\Base;
 
 /**
  * Exception catcher middleware
@@ -13,7 +13,7 @@ use http\Transaction;
  * @package Battlesuit
  * @subpackage http
  */
-class ShowExceptions extends Transaction {
+class ShowExceptions extends Base {
   function process(Request $request) {
     try {
       $response = call_user_func($this->processor, $request);

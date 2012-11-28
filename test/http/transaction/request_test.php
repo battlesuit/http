@@ -1,5 +1,5 @@
 <?php
-namespace http;
+namespace http\transaction;
 
 class RequestTest extends MessageTester {  
   function test_blank_construction() {
@@ -31,7 +31,7 @@ class RequestTest extends MessageTester {
     $this->assert_false($request->via_delete());
     $this->assert_true($request->via_head());
     
-    $this->assert_eq($request->to_string(), 'HEAD http://localhost:80');
+    $this->assert_eq("$request", 'HEAD http://localhost:80');
     $this->assert_eq($request->to_array(), array('head', 'http://localhost:80', array(), array()));
   }
   

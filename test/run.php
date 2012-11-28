@@ -9,11 +9,16 @@ namespace http {
   
   class PackageTestBench extends \test_bench\Base {
     function initialize() {
-      $this->add_test(new MessageTest());
-      $this->add_test(new RequestTest());
-      $this->add_test(new ResponseTest());
-      $this->add_test(new TransactionTest());
+      
+      # foundation testcases
       $this->add_test(new SessionTest());
+      $this->add_test(new EnvTest());
+      
+      # transaction testcases
+      $this->add_test(new transaction\MessageTest());
+      $this->add_test(new transaction\RequestTest());
+      $this->add_test(new transaction\ResponseTest());
+      $this->add_test(new transaction\ServerTest());
     }
   }
   

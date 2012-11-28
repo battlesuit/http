@@ -2,7 +2,7 @@
 namespace http;
 
 /**
- * Net package top-level error exception
+ * HTTP package top-level error exception
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>

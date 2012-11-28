@@ -15,7 +15,7 @@ namespace http {
    */
   function env($name = null, $value = null) {
     static $instance;
-    if(!isset($instance)) $instance = new Env($_SERVER, $_COOKIE, !empty($_SESSION) ? $_SESSION : array());
+    if(!isset($instance)) $instance = Env::dump();
     
     if(isset($name)) {
       if(isset($value)) {
@@ -27,14 +27,14 @@ namespace http {
   }
   
   /**
-   * Starts a server transaction within a given block
+   * Alias for transaction\run()
    *
-   * @param mixed $type
-   * @param callable $application
-   * @return Transaction
+   * @param callable $processor
+   * @param Request $request
+   * @return transaction\Server
    */
-  function run_transaction($processor, $request) {
-    return Transaction::run($processor, $request);
+  function run_transaction($processor, Request $request = null) {
+    return transaction\run($processor, $request);
   }
   
   /**
