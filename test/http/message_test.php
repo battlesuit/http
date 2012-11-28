@@ -1,5 +1,5 @@
 <?php
-namespace http\transaction;
+namespace http;
 
 class MessageTest extends MessageTester {
   function set_up() {

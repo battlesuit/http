@@ -1,5 +1,5 @@
 <?php
-namespace http\transaction;
+namespace http;
 
 class ResponseTest extends MessageTester {
   function test_blank_construction() {

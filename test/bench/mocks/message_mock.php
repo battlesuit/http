@@ -1,5 +1,5 @@
 <?php
-namespace http\transaction;
+namespace http;
 
 class MessageMock extends Message {
   

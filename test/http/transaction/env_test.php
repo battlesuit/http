@@ -1,7 +1,7 @@
 <?php
-namespace http;
+namespace http\transaction;
 
-class EnvTest extends TestCase {
+class EnvTest extends \http\TestCase {
   function set_up() {
     
   }

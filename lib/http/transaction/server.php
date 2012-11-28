@@ -1,5 +1,6 @@
 <?php
 namespace http\transaction;
+use http\Request;
 
 /**
  * Server transaction
@@ -69,31 +70,8 @@ class Server extends Base {
   function process(Request $request) {
     $application = $this->processor;
     foreach($this->prepare_middleware() as $app) $application = $app($application);
-    
-    ob_start();
-    try {
-      $returned_response = call_user_func($application, $request);
-    } catch(\Exception $e) {
-      ob_end_clean();
-      throw $e;
-    }
-    $captured_response = ob_get_clean();
-    
-    
-    if(!empty($captured_response)) {
-      $response = new Response(200, $captured_response);
-    }
-    elseif(is_array($returned_response)) {
-      $response = new Response($returned_response[0], $returned_response[2], $returned_response[1]);
-    }
-    elseif($returned_response instanceof Response) $response = $returned_response;
-    elseif(is_string($returned_response)) {
-      $response = new Response(200, $returned_response);
-    }
-    
-    # if no response defined force a default one
-    if(!isset($response)) $response = new Response();
-    return $this->response = $response;
+    $this->processor = $application;
+    return parent::process($request);
   }
   
   /**

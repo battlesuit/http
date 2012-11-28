@@ -1,8 +1,10 @@
 <?php
 namespace http\transaction;
+use http\Response;
+use http\Request;
 
 /**
- * Base transaction *abstract*
+ * Base transaction
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
@@ -10,7 +12,7 @@ namespace http\transaction;
  * @package Battlesuit
  * @subpackage http
  */
-abstract class Base {
+class Base {
   
   /**
    * Process callback
@@ -70,14 +72,69 @@ abstract class Base {
   }
   
   /**
+   * Captures a response for a given request
+   *
+   * @access protected
+   * @param Request $request
+   * @return Response
+   */
+  protected function capture_response(Request $request) {
+    ob_start();
+    try {
+      $returned_response = call_user_func($this->processor, $request);
+    } catch(\Exception $e) {
+      ob_end_clean();
+      throw $e;
+    }
+    $captured_response = ob_get_clean();
+    
+    
+    if(!empty($captured_response)) {
+      $response = new Response(200, $captured_response);
+    }
+    
+    elseif(is_array($returned_response)) {
+      $response = new Response($returned_response[0], $returned_response[2], $returned_response[1]);
+    }
+    
+    elseif($returned_response instanceof Response) {
+      $response = $returned_response;
+    }
+    
+    elseif(is_string($returned_response)) {
+      $response = new Response(200, $returned_response);
+    }
+    
+    # if no response defined return error response
+    if(!isset($response)) $response = new Response(404, "Resource not found");
+    return $this->response = $response;
+  }
+  
+  /**
+   * Creates, processes and returns a transaction instance
+   *
+   * @static
+   * @access public
+   * @param callable $processor
+   * @param Request $request
+   * @return Base
+   */
+  static function run($processor, Request $request) {
+    $transaction = new static($processor);
+    $transaction->process($request);
+    return $transaction;
+  }
+  
+  /**
    * Processes the transaction
    * Should return a response... must! :)
    *
-   * @abstract
    * @access public
    * @param Request $request
    * @return Response $response
    */   
-  abstract function process(Request $request);
+  function process(Request $request) {
+    return $this->capture_response($request);
+  }
 }
 ?>

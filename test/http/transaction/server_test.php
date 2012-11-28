@@ -1,5 +1,6 @@
 <?php
 namespace http\transaction;
+use http\Response;
 
 class ServerTest extends \http\TestCase {
     
@@ -24,7 +25,7 @@ class ServerTest extends \http\TestCase {
   function test_process() {
     $transaction = new Server($this->not_found_responder);
     $response = $transaction->process(new Request());
-    $this->assert_instanceof($response, 'http\transaction\Response');
+    $this->assert_instanceof($response, 'http\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   
@@ -36,7 +37,7 @@ class ServerTest extends \http\TestCase {
   function test_invocation() {
     $transaction = new Server($this->not_found_responder);
     $response = $transaction(new Request(), array());
-    $this->assert_instanceof($response, 'http\transaction\Response');
+    $this->assert_instanceof($response, 'http\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   
@@ -45,7 +46,7 @@ class ServerTest extends \http\TestCase {
     $t->process(new Request());
     $response = $t->response();
     
-    $this->assert_instanceof($response, 'http\transaction\Response');
+    $this->assert_instanceof($response, 'http\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }
   

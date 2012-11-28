@@ -1,5 +1,5 @@
 <?php
-namespace http\transaction;
+namespace http;
 
 /**
  * Common abstraction of an http message e.g. Request or Response

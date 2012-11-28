@@ -12,12 +12,12 @@ namespace http {
       
       # foundation testcases
       $this->add_test(new SessionTest());
-      $this->add_test(new EnvTest());
+      $this->add_test(new MessageTest());
+      $this->add_test(new RequestTest());
+      $this->add_test(new ResponseTest());      
       
       # transaction testcases
-      $this->add_test(new transaction\MessageTest());
-      $this->add_test(new transaction\RequestTest());
-      $this->add_test(new transaction\ResponseTest());
+      $this->add_test(new transaction\EnvTest());
       $this->add_test(new transaction\ServerTest());
     }
   }

@@ -1,7 +1,7 @@
 <?php
 namespace http\transaction\middleware;
-use http\transaction\Request;
-use http\transaction\Response;
+use http\Request;
+use http\Response;
 use http\transaction\Base;
 
 /**

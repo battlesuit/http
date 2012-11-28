@@ -1,5 +1,5 @@
 <?php
-namespace http\transaction;
+namespace http;
 
 /**
  * Standard http response message with some required helpers

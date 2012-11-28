@@ -1,7 +1,7 @@
 <?php
-namespace http\transaction;
+namespace http;
 
-class MessageTester extends \http\TestCase {
+class MessageTester extends TestCase {
   function set_up() {
     $this->test_header = array(
       'host' => 'domain.de',
