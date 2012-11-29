@@ -8,7 +8,7 @@ class RequestTest extends MessageTester {
   
   function test_defaults() {
     $request = new Request();
-    $this->assert_eq($request->method(), 'head');
+    $this->assert_eq($request->method(), 'get');
     $this->assert_eq($request->url(), 'http://localhost:80');
     $this->assert_empty_array($request->data);
     $this->assert_empty_array($request->query);
@@ -25,14 +25,14 @@ class RequestTest extends MessageTester {
     $this->assert_empty_string($request->path());
     $this->assert_empty_array($request->accepted_mimes());
     
-    $this->assert_false($request->via_get());
+    $this->assert_true($request->via_get());
     $this->assert_false($request->via_post());
     $this->assert_false($request->via_put());
     $this->assert_false($request->via_delete());
-    $this->assert_true($request->via_head());
+    $this->assert_false($request->via_head());
     
-    $this->assert_eq("$request", 'HEAD http://localhost:80');
-    $this->assert_eq($request->to_array(), array('head', 'http://localhost:80', array(), array()));
+    $this->assert_eq("$request", 'GET http://localhost:80');
+    $this->assert_eq($request->to_array(), array('get', 'http://localhost:80', array(), array()));
   }
   
   function test_method_lowercasion() {
@@ -149,7 +149,7 @@ class RequestTest extends MessageTester {
   
   function test_via() {
     $r = new Request();
-    $this->assert_true($r->via('head'));
+    $this->assert_true($r->via('get'));
   }
   
   function test_via_uppercased() {

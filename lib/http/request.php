@@ -19,7 +19,7 @@ class Request extends Message {
    * @access private
    * @var string
    */
-  private $method = 'head';
+  private $method = 'get';
   
   /**
    * The full requested url e.g http://domain.de/foo/bar.php?name=tom
