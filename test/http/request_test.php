@@ -11,7 +11,7 @@ class RequestTest extends MessageTester {
     $this->assert_eq($request->method(), 'get');
     $this->assert_eq($request->url(), 'http://localhost:80');
     $this->assert_empty_array($request->data);
-    $this->assert_empty_array($request->query);
+    $this->assert_empty_array($request->query());
     
     $url_comps = $request->url_components();
     $this->assert_eq($url_comps['scheme'], 'http');

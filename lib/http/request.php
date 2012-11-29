@@ -116,7 +116,10 @@ class Request extends Message {
    * @access public
    * @var array
    */
-  public $query = array();
+  protected $query = array();
+  protected $query_string;
+  
+  
   
   /**
    * 
@@ -187,7 +190,9 @@ class Request extends Message {
     
     # merge query with data array
     if(!empty($query)) {
+      $this->query_string = $query;
       parse_str($query, $query_data);
+      $this->query = $query_data;
       $this->data = array_merge($query_data, $this->data);
     }
     
@@ -272,6 +277,14 @@ class Request extends Message {
    */
   function path_info() {
     return $this->url_components['path_info'];
+  }
+  
+  function query() {
+    return $this->query;
+  }
+  
+  function query_string() {
+    return $this->query_string;
   }
   
   /**

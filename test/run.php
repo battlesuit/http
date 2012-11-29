@@ -6,6 +6,7 @@ namespace http {
   
   # register default autoload functionality
   autoload_in('http', __DIR__."/http");
+  autoload_in('server', __DIR__."/server");
   
   class PackageTestBench extends \test_bench\Base {
     function initialize() {
@@ -19,6 +20,9 @@ namespace http {
       # transaction testcases
       $this->add_test(new transaction\EnvTest());
       $this->add_test(new transaction\ServerTest());
+      
+      # local server tests
+      $this->add_test(new \server\ConnectionTest());
     }
   }
   
