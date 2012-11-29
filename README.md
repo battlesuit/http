@@ -23,7 +23,7 @@ If you want to extend the environment just do the following:
 ######Manual creation
 
     namespace http {
-      $r = new Request('get', 'http://domain.de:80/path/to/resource', array('post_var' => 'foo'))
+      $r = new Request('http://domain.de:80/path/to/resource', 'get', array('post_var' => 'foo'))
       $r->port; # => 80
     }
     
@@ -48,7 +48,7 @@ If you want to extend the environment just do the following:
       $t = new transaction\Server($p);
       
       # next its time to process a request
-      $t(new Request('get', 'http://my.domain.com/resource?var=foo'));
+      $t(new Request('http://my.domain.com/resource?var=foo'));
       
       # finally we got a response to serve
       $t->serve(); # writes headers and prints body => "foo"
@@ -59,7 +59,7 @@ If you want to extend the environment just do the following:
     namespace http {
       transaction\run(function($request) {
         return new Response(200, $request->data['var']);
-      }, new Request('get', 'http://my.domain.com/resource?var=foo'))->serve();     
+      }, new Request('http://my.domain.com/resource?var=foo'))->serve();     
     }
     
 ###Environment transaction

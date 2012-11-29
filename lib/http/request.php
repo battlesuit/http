@@ -211,7 +211,7 @@ class Request extends Message {
   function apply_env(Env $env) {
     $this->env = $env;
     list($method, $url, $input, $fields) = $env->request;
-    $this->__construct($method, $url, $input, $fields);
+    $this->__construct($url, $method, $input, $fields);
   }
   
   /**
