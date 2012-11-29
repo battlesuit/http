@@ -1,6 +1,7 @@
 <?php
 namespace http\transaction {
-   
+  use http\Request;
+
   /**
    * HTTP environment accessor
    *
@@ -27,6 +28,17 @@ namespace http\transaction {
   }
   
   /**
+   * Stores and returns the request instance for the current transaction
+   * 
+   * @return Request
+   */
+  function request() {
+    static $instance;
+    if(!isset($instance)) $instance = new Request(env());
+    return $instance;
+  }
+  
+  /**
    * Starts a server transaction within a given block
    *
    * @param callable $processor
@@ -34,8 +46,7 @@ namespace http\transaction {
    * @return Server
    */
   function run($processor, Request $request = null) {
-    if(!isset($request)) $request = new Request(env());
-    return Server::run($processor, $request);
+    return Server::run($processor, isset($request) ? $request : request());
   }
 }
 ?>

@@ -69,7 +69,7 @@ class Server extends Base {
    */   
   function process(Request $request) {
     $application = $this->processor;
-    foreach($this->prepare_middleware() as $app) $application = $app($application);
+    foreach($this->prepare_middleware() as $app) $application = call_user_func($app, $application);
     $this->processor = $application;
     return parent::process($request);
   }

@@ -1,7 +1,7 @@
 <?php
 namespace http;
 
-class MessageTester extends TestCase {
+class MessageTester extends TestUnit {
   function set_up() {
     $this->test_header = array(
       'host' => 'domain.de',

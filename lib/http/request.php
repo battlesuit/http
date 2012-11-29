@@ -1,5 +1,6 @@
 <?php
 namespace http;
+use http\transaction\Env;
 
 /**
  * Standard http request message with some required helpers
@@ -118,6 +119,12 @@ class Request extends Message {
   public $query = array();
   
   /**
+   * 
+   * 
+   */
+  public $env = array();
+  
+  /**
    * Constructs a new request instance
    * If the data array or the query contains the _method param the method gets
    * overridden.
@@ -127,12 +134,16 @@ class Request extends Message {
    *  accept = *\/*
    * 
    * @access public
-   * @param mixed $method
-   * @param string $url
+   * @param mixed $url_or_env
+   * @param string $method
    * @param array $input
    * @param array $fields Headerfields
    */
-  function __construct($method = null, $url = null, array $input = array(), array $fields = array()) {
+  function __construct($url_or_env = null, $method = null, array $input = array(), array $fields = array()) {
+    if(is_string($url_or_env)) {
+      $url = $url_or_env;
+    } elseif($url_or_env instanceof Env) $this->apply_env($url_or_env);
+    
     if(!empty($url)) $this->url = $url;
     $this->data = $input;
     $this->prepare_url_components();
@@ -189,6 +200,18 @@ class Request extends Message {
     }
     
     $this->url_components = array_merge($this->url_components, $components);
+  }
+  
+  /**
+   * Applies a environment
+   *
+   * @access public
+   * @param Env $env
+   */
+  function apply_env(Env $env) {
+    $this->env = $env;
+    list($method, $url, $input, $fields) = $env->request;
+    $this->__construct($method, $url, $input, $fields);
   }
   
   /**

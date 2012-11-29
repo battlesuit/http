@@ -65,6 +65,8 @@ class Env implements \ArrayAccess, \Iterator {
    */
   protected $variables = array();
   
+  public $request;
+  
   /**
    * Constructs a new Env instance
    *
@@ -78,6 +80,7 @@ class Env implements \ArrayAccess, \Iterator {
   function variables(array $variables = null) {
     if(isset($variables)) {
       $this->variables = array_merge($this->variables, static::$defaults, $variables);
+      $this->parse();
     }
     
     return $this->variables;
@@ -96,7 +99,51 @@ class Env implements \ArrayAccess, \Iterator {
   static function init($callback) {
     self::$init = $callback;
   }
+  
+  /**
+   * Parsed request info from env and returns an array:
+   * [0] => method
+   * [1] => url
+   * [2] => input_data
+   * [3] => headerfields
+   *
+   * @access protected
+   * @return array
+   */
+  protected function parse() {
+    $sapi = php_sapi_name();
+    
+    if($sapi === 'cli') {
+      $path = null;
+    } else {
+      $path_info = isset($this['PATH_INFO']) ? $this['PATH_INFO'] : null;
+      $path = $this['SCRIPT_NAME'].$path_info;
+    }
+    
+    $scheme = (isset($this['HTTPS']) and $this['HTTPS'] == 'on') ? 'https' : 'http';
+    $host = $this['HTTP_HOST'];
+    $port = $this['SERVER_PORT'];
+    
+    $query_string = !empty($this['QUERY_STRING']) ? $this['QUERY_STRING'] : null;
+    
+    if(!empty($query_string)) {
+      $path = "$path?$query_string";
+    }
+    
+    $header = array();
+    foreach($this as $name => $value) {
+      if(strpos($name, 'HTTP_') === 0) $header[strtolower(substr($name, 5))] = $value;
+    }
+    
+    $input = array();
+    $http_input = @file_get_contents('php://input');
+    if(isset($http_input)) {
+      parse_str($http_input, $input);
+    }
 
+    $this->request = array($this['REQUEST_METHOD'], "$scheme://$host:$port$path", $input, $header);
+  }
+  
   /**
    * Reads the server name
    *
@@ -104,7 +151,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return string
    */
   function server_name() {
-    return $this['SERVER_NAME'];
+    return $this->variables['SERVER_NAME'];
   }
   
   /**
@@ -114,7 +161,7 @@ class Env implements \ArrayAccess, \Iterator {
    * @return int
    */
   function server_port() {
-    return (int)$this['SERVER_PORT'];
+    return (int)$this->variables['SERVER_PORT'];
   }
   
   /**

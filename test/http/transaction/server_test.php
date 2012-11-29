@@ -1,8 +1,9 @@
 <?php
 namespace http\transaction;
 use http\Response;
+use http\Request;
 
-class ServerTest extends \http\TestCase {
+class ServerTest extends \http\TestUnit {
     
   function assert_flat_body_eq($processor, $request, $value) {
     $t = new Server($processor);

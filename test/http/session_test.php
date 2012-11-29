@@ -1,7 +1,7 @@
 <?php
 namespace http;
 
-class SessionTest extends TestCase {
+class SessionTest extends TestUnit {
   function set_up() {
     $this->session = new Session();
   }

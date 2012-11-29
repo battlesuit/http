@@ -88,7 +88,6 @@ class Base {
     }
     $captured_response = ob_get_clean();
     
-    
     if(!empty($captured_response)) {
       $response = new Response(200, $captured_response);
     }
@@ -104,7 +103,7 @@ class Base {
     elseif(is_string($returned_response)) {
       $response = new Response(200, $returned_response);
     }
-    
+        
     # if no response defined return error response
     if(!isset($response)) $response = new Response(404, "Resource not found");
     return $this->response = $response;
@@ -131,7 +130,7 @@ class Base {
    *
    * @access public
    * @param Request $request
-   * @return Response $response
+   * @return Response
    */   
   function process(Request $request) {
     return $this->capture_response($request);
