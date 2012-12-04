@@ -13,13 +13,13 @@ namespace http;
 class Response extends Message {
   
   /**
-   * List of statuscodes associated with the given message
+   * List of statuscodes associated with the reason phrase
    *
    * @static
    * @access public
    * @var array
    */
-  static $status_info = array(
+  static $reason_phrases = array(
     100 => 'Continue',
     101 => 'Switching Protocols',
     200 => 'OK',
@@ -100,6 +100,13 @@ class Response extends Message {
     $this->status = (int)$status;
     $this->body($body);
     $this->fields($fields);
+  }
+  
+  function status_line() {
+    $code = $this->status;
+    $info = array_key_exists($code, static::$reason_phrases) ? static::$reason_phrases[$code] : '';
+    
+    return "$this->protocol $code $info";
   }
   
   /**

@@ -7,9 +7,10 @@ namespace http;
  * @author Tom
  */
 class Connection {
-  private $url;
-  private $info = array();
-  private $format;
+  private $https;
+  
+  private $host;
+  private $port;
   private $established = false;
   private $handle;
   
@@ -18,43 +19,27 @@ class Connection {
   public $cookies = array();
   public $request_body;
   
-  function __construct($url, $format = 'xml') {
-    $this->url = $url;
-    $this->parse_url($url);
-    $this->format = $format;
+  function __construct($host, $port = 80, $https = false) {
+    $this->host = $host;
+    $this->port = $port;
+    $this->https = $https;
   }
   
   function established() {
     return $this->established;
   }
   
-  protected function parse_url($url) {
-    $info = parse_url($url);
-    
-    if(!isset($info['scheme'])) {
-      $info['scheme'] = 'http';
-    }
-    
-    if(!isset($info['host'])) {
-      $info['host'] = '127.0.0.1';
-    }
-    
-    if(!isset($info['port'])) {
-      $info['port'] = ($info['scheme'] == 'https') ? 443 : 80;
-    }
-    
-    $this->info = $info;
+  function domain_url() {
+    $scheme = $this->https ? 'https' : 'http';
+    return "$scheme://$this->host:$this->port";
   }
   
   function establish() {
     if($this->established) return;
     
-    $timeout = $this->timeout;
-    extract($this->info);
-    
-    $handle = @fsockopen($host, $port, $error_number, $error, $timeout);
+    $handle = @fsockopen($this->host, $this->port, $error_number, $error, $this->timeout);
     if(!$handle) {
-      throw new \ErrorException("Cannot open [$host:$port] with [$error] within [$timeout] seconds");
+      throw new \ErrorException("Cannot open [$this->host:$this->port] with [$error] within [$this->timeout] seconds");
     } else {
       $this->established = true;
       $this->handle = $handle;
@@ -68,25 +53,21 @@ class Connection {
     return fclose($this->handle);
   }
   
-  function request($method, array $fields = array()) {
+  function request($path, $method = 'get', array $fields = array()) {
     $this->establish();
-    $this->puts($this->write_request_line($method));
+    $this->puts($this->write_request_line($method, $path));
     $this->puts($this->write_host_line());
     $this->puts("Connection: close");
     $this->puts();
     
-    foreach($fields as $line) {
-      $this->puts($line);
-    }
+    # write headerfields
+    foreach($fields as $line) $this->puts($line);
     
     if(!empty($this->cookies)) {
       $this->puts("Cookie: ".implode(";", $this->cookies));
     }
     
-    //$socket->puts("Content-Length: ".(int)strlen($this->request_body));
-    //$socket->puts("Content-Type: ".Request::mime_for($this->format));
     $this->puts();
-    //$socket->puts($this->request_body);
     
     $body = '';
     $line_index = 0;
@@ -155,28 +136,31 @@ class Connection {
     return $result;
   }
   
-  protected function write_request_line($method) {
-    return strtoupper($method)." $this->url HTTP/1.0";
+  protected function write_request_line($method, $path) {
+    if(!empty($path) and $path[0] != '/') $path = "/$path";
+    $url = $this->domain_url().$path;
+    
+    return strtoupper($method)." $url HTTP/1.0";
   }
   
   protected function write_host_line() {
-    return "Host: ".$this->info['host'];
+    return "Host: $this->host";
   }
   
-  function get(array $header = array()) {
-    return $this->request('get', $header);
+  function get($path, array $header = array()) {
+    return $this->request($path, 'get', $header);
   }
   
-  function post(array $header = array()) {
-    return $this->request('post', $header);
+  function post($path, array $header = array()) {
+    return $this->request($path, 'post', $header);
   }
   
-  function put(array $header = array()) {
-    return $this->request('put', $header);
+  function put($path, array $header = array()) {
+    return $this->request($path, 'put', $header);
   }
   
-  function delete(array $header = array()) {
-    return $this->request('delete', $header);
+  function delete($path, array $header = array()) {
+    return $this->request($path, 'delete', $header);
   }
 }
 ?>
