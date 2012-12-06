@@ -2,7 +2,7 @@ bs.http
 =======
 
 This minimalistic bundle should serve as a fundation for local http server transactions with middleware integration.  
-Run tests under `test/run.php` (59/59 completed, 116 passes)
+Run tests under `test/run.php` (65/65 completed, 122 passes)
 
 ###The Environment Accessor
 Use the `http\transaction\env()` function to access and/or initialize the environment.
