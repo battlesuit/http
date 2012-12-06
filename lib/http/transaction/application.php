@@ -12,7 +12,7 @@ use http\Request;
  * @package Battlesuit
  * @subpackage http
  */
-class Base {
+class Application {
   
   /**
    * Process callback
@@ -81,7 +81,7 @@ class Base {
   protected function capture_response(Request $request) {
     ob_start();
     try {
-      $returned_response = call_user_func($this->processor, $request);
+      $returned_response = $this->invoke_processor($request);
     } catch(\Exception $e) {
       ob_end_clean();
       throw $e;
@@ -107,6 +107,17 @@ class Base {
     # if no response defined return error response
     if(!isset($response)) $response = new Response(404, "Resource not found");
     return $this->response = $response;
+  }
+  
+  /**
+   * Calls the processor and returns the response
+   *
+   * @access protected
+   * @param Request $request
+   * @return mixed
+   */
+  protected function invoke_processor(Request $request) {
+    return call_user_func($this->processor, $request);
   }
   
   /**

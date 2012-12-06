@@ -34,10 +34,9 @@ class ResponseTest extends MessageTester {
     $this->assert_equality($body[0], 'hello world');
   }
   
-  function test_body_accessor_passing_a_string() {
+  function test_write_passing_a_string() {
     $response = new Response();
-    $body = $response->body('hello world');
-    $this->assert_equality($body[0], 'hello world');
+    $response->write('hello world');
     $body = $response->body();
     $this->assert_equality($body[0], 'hello world');
   }

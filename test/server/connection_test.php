@@ -21,6 +21,12 @@ class ConnectionTest extends \test_case\Unit {
     $this->assert_eq($response->flat_body(), 'Response to GET request');
   }
   
+  function test_connection_get_request_path_without_leading_slash() {
+    $con = new Connection($this->host);
+    $response = $con->request('transaction.php');
+    $this->assert_eq($response->flat_body(), 'Response to GET request');
+  }
+  
   function test_connection_post_request() {
     $con = new Connection($this->host);
     $response = $con->request('/transaction.php', 'post');

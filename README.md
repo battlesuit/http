@@ -75,8 +75,8 @@ Leaving out the request will auto-create one with `http\transaction\env()`
 So if you want to integrate some of your own middleware classes you have to write a very short initor for the server transaction before running it:
 
     namespace http {
-      transaction\Server::init(function($t) {
-        $t->integrate('my/own/MiddlewareClass');
+      transaction\Server::Middleware(function($mw) {
+        $mw->integrate('my/own/MiddlewareClass');
       });
       
       transaction\run(function($request) {

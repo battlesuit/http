@@ -1,6 +1,7 @@
 <?php
 namespace http\transaction;
 use http\Request;
+use http\transaction\server\Middleware;
 
 /**
  * Server transaction
@@ -11,26 +12,27 @@ use http\Request;
  * @package Battlesuit
  * @subpackage http
  */
-class Server extends Base {
+class Server extends Application {
   
   /**
-   * Middleware to include
+   * Middleware instance
    *
-   * @access protected
-   * @var array
-   */
-  protected $middleware = array(
-    'http\transaction\middleware\ShowExceptions'
-  );
-  
-  /**
-   * Initialization callback
-   *
-   * @static
    * @access private
-   * @var callable
+   * @var Middleware
    */
-  private static $init;
+  private $middleware;
+  
+  /**
+   * Constructs a new server instance
+   * 
+   * @access public
+   * @param callable $processor
+   * @param Middleware $middleware
+   */
+  function __construct($processor, Middleware $middleware = null) {
+    parent::__construct($processor);
+    $this->middleware = isset($middleware) ? $middleware : static::Middleware();
+  }
   
   /**
    * Creates, processes and returns a transaction instance
@@ -39,25 +41,26 @@ class Server extends Base {
    * @access public
    * @param callable $processor
    * @param Request $request
-   * @return Local
+   * @return Server
    */
   static function run($processor, Request $request) {
-    $transaction = new static($processor);
-    if(is_callable(self::$init)) call_user_func(self::$init, $transaction);
+    $transaction = new static($processor, static::Middleware());
     $transaction->process($request);
     return $transaction;
   }
   
   /**
-   * Defines a initalization callback which takes the transaction instance
-   * after creation by static::run()
+   * Access middleware collection
    *
    * @static
    * @access public
-   * @param callable $initalization_callback
+   * @param callable $block
    */
-  static function init($initalization_callback) {
-    self::$init = $initalization_callback;
+  static function Middleware($block = null) {
+    static $collection;
+    if(!isset($collection)) $collection = new Middleware();
+    if(is_callable($block)) call_user_func($block, $collection);
+    return $collection;
   }
   
   /**
@@ -68,39 +71,8 @@ class Server extends Base {
    * @return Response
    */   
   function process(Request $request) {
-    $application = $this->processor;
-    foreach($this->prepare_middleware() as $app) $application = call_user_func($app, $application);
-    $this->processor = $application;
+    $this->processor = $this->middleware->compose($this->processor);
     return parent::process($request);
-  }
-  
-  /**
-   * Integrates a new middleware class
-   * Every class instance must be invocable. Normally you have to extend transaction\Base
-   *
-   * @access public
-   * @param string $class
-   */
-  function integrate($class) {
-    $this->middleware[] = $class;
-  }
-  
-  /**
-   * Prepares transaction middleware for execution
-   * 
-   * @access public
-   * @return array
-   */
-  function prepare_middleware() {
-    $middleware = array();
-    
-    foreach($this->middleware as $class) {
-      $middleware[] = function($application) use($class) {
-        return new $class($application);
-      };
-    }
-    
-    return array_reverse($middleware);
   }
   
   /**

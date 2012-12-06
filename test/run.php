@@ -20,6 +20,7 @@ namespace http {
       # transaction testcases
       $this->add_test(new transaction\EnvTest());
       $this->add_test(new transaction\ServerTest());
+      $this->add_test(new transaction\MiddlewareIntegrationTest());
       
       # local server tests
       $this->add_test(new \server\ConnectionTest());

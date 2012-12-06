@@ -117,12 +117,20 @@ class Response extends Message {
    * @return array
    */
   function body($content = null) {
-    if(isset($content)) {
-      if(is_array($content)) {
-        foreach($content as $line) $this->body[] = $line;
-      } else $this->body[] = $content;
-    }
+    if(isset($content)) $this->body = (array)$content;
     return $this->body;
+  }
+  
+  /**
+   * Writes a line to the body
+   *
+   * @access public
+   * @param mixed $line_or_lines
+   */
+  function write($line_or_lines) {
+    if(is_array($line_or_lines)) {
+      $this->body = array_merge($this->body, $line_or_lines);
+    } else $this->body[] = $line_or_lines;
   }
   
   /**

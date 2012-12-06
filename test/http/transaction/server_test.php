@@ -24,8 +24,8 @@ class ServerTest extends \http\TestUnit {
   }
   
   function test_process() {
-    $transaction = new Server($this->not_found_responder);
-    $response = $transaction->process(new Request());
+    $server = new Server($this->not_found_responder);
+    $response = $server->process(new Request());
     $this->assert_instanceof($response, 'http\Response');
     $this->assert_eq("$response", 'Ooops! Not found');
   }

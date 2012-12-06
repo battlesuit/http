@@ -117,13 +117,20 @@ class Request extends Message {
    * @var array
    */
   protected $query = array();
-  protected $query_string;
-  
-  
   
   /**
-   * 
-   * 
+   * Full query string
+   *
+   * @access protected
+   * @var string
+   */
+  protected $query_string;
+  
+  /**
+   * Applied Env instance or simple array
+   *
+   * @access public
+   * @var Env or array
    */
   public $env = array();
   
@@ -279,10 +286,22 @@ class Request extends Message {
     return $this->url_components['path_info'];
   }
   
+  /**
+   * Returns the query in array form
+   * http://domain.de/resource?name=thomas&country=germany
+   * => ['name' => 'thomas', 'country' => 'germany']
+   * 
+   * @return array
+   */
   function query() {
     return $this->query;
   }
   
+  /**
+   * Returns the query in string form
+   *
+   * @return string
+   */
   function query_string() {
     return $this->query_string;
   }
