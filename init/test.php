@@ -8,7 +8,7 @@
  * @package Battlesuit
  * @subpackage http
  */
-namespace bs {
+namespace {
   require __DIR__.'/../../module.php';
   import('test', 'http');
 }

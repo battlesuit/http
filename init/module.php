@@ -10,7 +10,7 @@
  * @package Battlesuit
  * @subpackage http
  */
-namespace bs {
+namespace {
   autoload_in('http', dirname(__DIR__)."/lib/http");
   
   # import helper functions
