@@ -116,7 +116,7 @@ class Connection {
     
     $handle = @fsockopen($this->host, $this->port, $error_number, $error, $timeout);
     if(!$handle) {
-      throw new \ErrorException("Cannot open [$this->host:$this->port] with [$error] within [$timeout] seconds");
+      throw new Error("Cannot open [$this->host:$this->port] with [$error] within [$timeout] seconds");
     } else {
       $this->established = true;
       $this->handle = $handle;
@@ -251,7 +251,7 @@ class Connection {
     
     if(!$count) {
       $this->close();
-      throw new \ErrorException("Cannot write to socket");
+      throw new Error("Cannot write to connection handle");
     }
   }
   
@@ -289,7 +289,7 @@ class Connection {
     
     if(!$text) {
       $this->close();
-      throw new \ErrorException("Cannot read from socket");
+      throw new Error("Cannot read from connection handle");
     }
     
     return $text;
