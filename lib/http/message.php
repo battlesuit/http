@@ -114,12 +114,12 @@ abstract class Message implements \ArrayAccess, \Iterator {
    *
    * @access public
    * @param string $mime
-   * @param string $charset with utf8 as default
+   * @param string $charset with utf-8 as default
    * @return string
    */
   function content_type($mime = null, $charset = 'utf-8') {
-    if(isset($mime)) return $this->write_field('content_type', "$mime; charset=$charset");
-    return $this->field('content_type');
+    if(isset($mime)) return $this->fields['content_type'] = "$mime; charset=$charset";
+    return $this->fields['content_type'];
   }
  
   /**
