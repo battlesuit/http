@@ -65,7 +65,13 @@ class Env implements \ArrayAccess, \Iterator {
    */
   protected $variables = array();
   
-  public $request;
+  /**
+   * Stores the request info array
+   *
+   * @access private
+   * @var array
+   */
+  private $request_info;
   
   /**
    * Constructs a new Env instance
@@ -73,19 +79,27 @@ class Env implements \ArrayAccess, \Iterator {
    * @access public
    * @param array $variables
    */
-  function __construct(array $variables = null) {
-    $this->variables($variables);
+  function __construct(array $variables = array()) {
+    $this->variables = array_merge(static::$defaults, $variables);
   }
   
-  function variables(array $variables = null) {
-    if(isset($variables)) {
-      $this->variables = array_merge($this->variables, static::$defaults, $variables);
-      $this->parse();
-    }
-    
+  /**
+   * Returns the environment variables as real array
+   *
+   * @access public
+   * @return array
+   */
+  function variables() {
     return $this->variables;
   }
   
+  /**
+   * Dumps the current environment including $_SERVER and $_COOKIE globals
+   *
+   * @static
+   * @access public
+   * @return Env
+   */
   static function dump() {
     $variables = $_SERVER + array(
       'cookies' => new Cookies($_COOKIE)
@@ -96,21 +110,33 @@ class Env implements \ArrayAccess, \Iterator {
     return $instance;
   }
   
+  /**
+   * Applies a initialization callback which is called
+   * with the just instanciated Env instance in ::dump() method
+   *
+   * @static
+   * @access public
+   * @param callable $callback
+   */
   static function init($callback) {
     self::$init = $callback;
   }
   
   /**
-   * Parsed request info from env and returns an array:
+   * Parse request from env and returns an info array:
    * [0] => method
    * [1] => url
    * [2] => input_data
    * [3] => headerfields
    *
-   * @access protected
+   * Also stores array in $this->request_info
+   *
+   * @access public
    * @return array
    */
-  protected function parse() {
+  function request_info() {
+    if(isset($this->request_info)) return $this->request_info;
+    
     $sapi = php_sapi_name();
     
     if($sapi === 'cli') {
@@ -141,11 +167,11 @@ class Env implements \ArrayAccess, \Iterator {
       parse_str($http_input, $input);
     }
 
-    $this->request = array($this['REQUEST_METHOD'], "$scheme://$host:$port$path", $input, $header);
+    return $this->request_info = array($this['REQUEST_METHOD'], "$scheme://$host:$port$path", $input, $header);
   }
   
   /**
-   * Reads the server name
+   * Returns the server name
    *
    * @access public
    * @return string

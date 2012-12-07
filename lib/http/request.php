@@ -152,7 +152,10 @@ class Request extends Message {
   function __construct($url_or_env = null, $method = null, array $input = array(), array $fields = array()) {
     if(is_string($url_or_env)) {
       $url = $url_or_env;
-    } elseif($url_or_env instanceof Env) $this->apply_env($url_or_env);
+    } elseif($url_or_env instanceof Env) {
+      $this->env = $url_or_env;
+      list($method, $url, $input, $fields) = $this->env->request_info();
+    }
     
     if(!empty($url)) $this->url = $url;
     $this->data = $input;
@@ -212,18 +215,6 @@ class Request extends Message {
     }
     
     $this->url_components = array_merge($this->url_components, $components);
-  }
-  
-  /**
-   * Applies a environment
-   *
-   * @access public
-   * @param Env $env
-   */
-  function apply_env(Env $env) {
-    $this->env = $env;
-    list($method, $url, $input, $fields) = $env->request;
-    $this->__construct($url, $method, $input, $fields);
   }
   
   /**
