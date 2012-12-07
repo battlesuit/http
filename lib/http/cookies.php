@@ -2,7 +2,8 @@
 namespace http;
 
 /**
- * Cookies collection helper
+ * Cookie holder
+ * Every transaction environment got one at $env['cookies']
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
