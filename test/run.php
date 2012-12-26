@@ -1,12 +1,9 @@
 <?php
 namespace http {
-  require __DIR__.'/../init/test.php';
+  require 'loader.php';
   
+  error_reporting(-1);
   set_include_path(get_include_path().PATH_SEPARATOR.__DIR__);
-  
-  # register default autoload functionality
-  autoload_in('http', __DIR__."/http");
-  autoload_in('server', __DIR__."/server");
   
   class PackageTestBench extends \test_bench\Base {
     function initialize() {
@@ -23,7 +20,7 @@ namespace http {
       $this->add_test(new transaction\MiddlewareIntegrationTest());
       
       # local server tests
-      $this->add_test(new \server\ConnectionTest());
+      //$this->add_test(new \server\ConnectionTest());
     }
   }
   

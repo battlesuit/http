@@ -1,6 +1,6 @@
 <?php
 /**
- * Initializes the http testing environment
+ * Loads testing environment
  *
  * PHP Version 5.3+
  * @author Thomas Monzel <tm@apparat-hamburg.de>
@@ -8,8 +8,10 @@
  * @package Battlesuit
  * @subpackage http
  */
-namespace {
-  require __DIR__.'/../../module.php';
+namespace loader {
+  require "../loader.php";
   import('test', 'http');
+  scope('http', __DIR__);
+  scope('server', __DIR__);
 }
 ?>
