@@ -142,7 +142,7 @@ class Env implements \ArrayAccess, \Iterator {
     if($sapi === 'cli') {
       $path = null;
     } else {
-      $path_info = isset($this['PATH_INFO']) ? $this['PATH_INFO'] : null;
+      $path_info = isset($this['PATH_INFO']) ? $this['PATH_INFO'] : '/';
       $path = $this['SCRIPT_NAME'].$path_info;
     }
     
