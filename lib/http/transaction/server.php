@@ -41,10 +41,14 @@ class Server extends Application {
    * @access public
    * @param callable $processor
    * @param Request $request
+   * @param array $middleware_classes
    * @return Server
    */
-  static function run($processor, Request $request) {
-    $transaction = new static($processor, static::Middleware());
+  static function run($processor, Request $request, array $middleware_classes = array()) {
+    $middleware = static::Middleware();
+    foreach($middleware_classes as $class) $middleware->integrate($class); 
+    
+    $transaction = new static($processor, $middleware);
     $transaction->process($request);
     return $transaction;
   }
